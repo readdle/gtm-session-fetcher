@@ -1263,7 +1263,7 @@ NSString *const kGTMSessionFetcherUploadLocationObtainedNotification =
                 totalBytesExpectedToSend:totalExpected];
   };
     
-    chunkFetcher.sendUploadRequestBlock = self.sendUploadRequestBlock;
+    chunkFetcher.shouldSendTransferRequestBlock = self.shouldSendTransferRequestBlock;
 }
 
 - (NSDictionary *)uploadSessionIdentifierMetadata {

@@ -535,7 +535,7 @@ typedef void (^GTMSessionFetcherSendProgressBlock)(int64_t bytesSent,
 typedef void (^GTMSessionFetcherWillCacheURLResponseResponse)(NSCachedURLResponse * GTM_NULLABLE_TYPE cachedResponse);
 typedef void (^GTMSessionFetcherWillCacheURLResponseBlock)(NSCachedURLResponse *proposedResponse,
                                                            GTMSessionFetcherWillCacheURLResponseResponse responseBlock);
-typedef BOOL (^GTMSessionFetcherShouldSendUploadRequestBlock)(GTMSessionFetcher *fetcher,NSURLRequest *uploadRequest);
+typedef BOOL (^GTMSessionFetcherShouldSendTransferRequestBlock)(GTMSessionFetcher *fetcher,NSURLRequest *transferRequest);
 typedef void (^GTMSessionFetcherRetryResponse)(BOOL shouldRetry);
 typedef void (^GTMSessionFetcherRetryBlock)(BOOL suggestedWillRetry,
                                             NSError * GTM_NULLABLE_TYPE error,
@@ -947,7 +947,7 @@ NSData * GTM_NULLABLE_TYPE GTMDataFromInputStream(NSInputStream *inputStream, NS
 // This is called on the callback queue.
 @property(atomic, copy, GTM_NULLABLE) GTMSessionFetcherSendProgressBlock sendProgressBlock;
 
-@property(atomic, copy, GTM_NULLABLE) GTMSessionFetcherShouldSendUploadRequestBlock sendUploadRequestBlock;
+@property(atomic, copy, GTM_NULLABLE) GTMSessionFetcherShouldSendTransferRequestBlock shouldSendTransferRequestBlock;
 
 // The optional accumulate block may be set by clients wishing to accumulate data
 // themselves rather than let the fetcher append each buffer to an NSData.

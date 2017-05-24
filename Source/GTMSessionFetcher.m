@@ -139,7 +139,7 @@ static GTMSessionFetcherTestBlock GTM_NULLABLE_TYPE gGlobalTestBlock;
   NSError *_downloadFinishedError;
   NSData *_downloadResumeData;  // immutable after construction
   NSURL *_destinationFileURL;
-  GTMSessionFetcherShouldSendUploadRequestBlock _sendUploadRequestBlock;
+  GTMSessionFetcherShouldSendTransferRequestBlock _shouldSendTransferRequestBlock;
   int64_t _downloadedLength;
   NSURLCredential *_credential;     // username & password
   NSURLCredential *_proxyCredential; // credential supplied to proxy servers
@@ -735,14 +735,24 @@ static GTMSessionFetcherTestBlock GTM_NULLABLE_TYPE gGlobalTestBlock;
         @"Failed downloadTaskWithResumeData for %@, resume data %tu bytes",
         _session, _downloadResumeData.length);
   } else if (_destinationFileURL && !isDataRequest) {
+
+      BOOL result = YES;
+      if(self.shouldSendTransferRequestBlock){
+          result = self.shouldSendTransferRequestBlock(self,fetchRequest);
+      }
+      
+      if(result==NO){
+          return;
+      }
+      
     newSessionTask = [_session downloadTaskWithRequest:fetchRequest];
     GTMSESSION_ASSERT_DEBUG_OR_LOG(newSessionTask, @"Failed downloadTaskWithRequest for %@, %@",
                                    _session, fetchRequest);
   } else if (needsUploadTask) {
       
       BOOL result = YES;
-      if(self.sendUploadRequestBlock){
-          result = self.sendUploadRequestBlock(self,fetchRequest);
+      if(self.shouldSendTransferRequestBlock){
+          result = self.shouldSendTransferRequestBlock(self,fetchRequest);
       }
       
       if(result==NO){
@@ -3487,17 +3497,17 @@ static NSMutableDictionary *gSystemCompletionHandlers = nil;
   }  // @synchronized(self)
 }
 
-- (GTM_NULLABLE GTMSessionFetcherShouldSendUploadRequestBlock)sendUploadRequestBlock{
+- (GTM_NULLABLE GTMSessionFetcherShouldSendTransferRequestBlock)shouldSendTransferRequestBlock{
     @synchronized(self) {
         GTMSessionMonitorSynchronized(self);
-        return _sendUploadRequestBlock;
+        return _shouldSendTransferRequestBlock;
     }
 }
 
-- (void)setSendUploadRequestBlock:(GTM_NULLABLE GTMSessionFetcherShouldSendUploadRequestBlock)block {
+- (void)setShouldSendTransferRequestBlock:(GTM_NULLABLE GTMSessionFetcherShouldSendTransferRequestBlock)block {
     @synchronized(self) {
         GTMSessionMonitorSynchronized(self);
-        _sendUploadRequestBlock = [block copy];
+        _shouldSendTransferRequestBlock = [block copy];
     }  // @synchronized(self)
 }
 
