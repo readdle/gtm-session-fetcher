@@ -139,6 +139,7 @@ static GTMSessionFetcherTestBlock GTM_NULLABLE_TYPE gGlobalTestBlock;
   NSError *_downloadFinishedError;
   NSData *_downloadResumeData;  // immutable after construction
   NSURL *_destinationFileURL;
+  GTMSessionFetcherShouldSendUploadRequestBlock _sendUploadRequestBlock;
   int64_t _downloadedLength;
   NSURLCredential *_credential;     // username & password
   NSURLCredential *_proxyCredential; // credential supplied to proxy servers
@@ -738,6 +739,17 @@ static GTMSessionFetcherTestBlock GTM_NULLABLE_TYPE gGlobalTestBlock;
     GTMSESSION_ASSERT_DEBUG_OR_LOG(newSessionTask, @"Failed downloadTaskWithRequest for %@, %@",
                                    _session, fetchRequest);
   } else if (needsUploadTask) {
+      
+      BOOL result = YES;
+      if(self.sendUploadRequestBlock){
+          result = self.sendUploadRequestBlock(self,fetchRequest);
+      }
+      
+      if(result==NO){
+          [self failToBeginFetchWithError:beginFailureError(GTMSessionFetcherErrorTaskCreationFailed)];
+          return;
+      }
+      
     if (bodyFileURL) {
       newSessionTask = [_session uploadTaskWithRequest:fetchRequest
                                               fromFile:bodyFileURL];
@@ -3474,6 +3486,20 @@ static NSMutableDictionary *gSystemCompletionHandlers = nil;
 
     _bodyStreamProvider = [block copy];
   }  // @synchronized(self)
+}
+
+- (GTM_NULLABLE GTMSessionFetcherShouldSendUploadRequestBlock)sendUploadRequestBlock{
+    @synchronized(self) {
+        GTMSessionMonitorSynchronized(self);
+        return _sendUploadRequestBlock;
+    }
+}
+
+- (void)setSendUploadRequestBlock:(GTM_NULLABLE GTMSessionFetcherShouldSendUploadRequestBlock)block {
+    @synchronized(self) {
+        GTMSessionMonitorSynchronized(self);
+        _sendUploadRequestBlock = [block copy];
+    }  // @synchronized(self)
 }
 
 - (GTM_NULLABLE id<GTMFetcherAuthorizationProtocol>)authorizer {

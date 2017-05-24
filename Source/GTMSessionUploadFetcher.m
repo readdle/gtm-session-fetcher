@@ -777,6 +777,7 @@ NSString *const kGTMSessionFetcherUploadLocationObtainedNotification =
     GTMSessionMonitorSynchronized(self);
 
     _chunkFetcher = fetcher;
+      
   }
 }
 
@@ -1261,6 +1262,8 @@ NSString *const kGTMSessionFetcherUploadLocationObtainedNotification =
                           totalBytesSent:totalSent
                 totalBytesExpectedToSend:totalExpected];
   };
+    
+    chunkFetcher.sendUploadRequestBlock = self.sendUploadRequestBlock;
 }
 
 - (NSDictionary *)uploadSessionIdentifierMetadata {

@@ -117,6 +117,8 @@ typedef void (^GTMSessionUploadFetcherDataProvider)(int64_t offset, int64_t leng
 @property(atomic, readonly, GTM_NULLABLE) dispatch_queue_t delegateCallbackQueue;
 @property(atomic, readonly, GTM_NULLABLE) GTMSessionFetcherCompletionHandler delegateCompletionHandler;
 
+@property(readonly, assign, atomic) int64_t uploadGranularity;
+
 @end
 
 @interface GTMSessionFetcher (GTMSessionUploadFetcherMethods)
